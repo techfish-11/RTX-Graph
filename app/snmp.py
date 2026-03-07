@@ -30,8 +30,10 @@ def fetch_interface_counters(
     if version not in {"2c", "v2c"}:
         raise SNMPError(f"Unsupported SNMP version: {version}")
 
-    in_oid = ObjectType(ObjectIdentity(f"1.3.6.1.2.1.31.1.1.1.6.{if_index}"))
-    out_oid = ObjectType(ObjectIdentity(f"1.3.6.1.2.1.31.1.1.1.10.{if_index}"))
+    # Use 32-bit counters (ifInOctets/ifOutOctets); widely supported.
+    # ifHCInOctets/ifHCOutOctets (64-bit) are not supported on many devices including Yamaha RTX.
+    in_oid = ObjectType(ObjectIdentity(f"1.3.6.1.2.1.2.2.1.10.{if_index}"))
+    out_oid = ObjectType(ObjectIdentity(f"1.3.6.1.2.1.2.2.1.16.{if_index}"))
 
     iterator = getCmd(
         SnmpEngine(),
@@ -50,14 +52,23 @@ def fetch_interface_counters(
         raise SNMPError(f"{error_status.prettyPrint()} at index {error_index}")
 
     values: list[int] = []
-    for _, value in var_binds:
+    for oid, value in var_binds:
+        # attempt to interpret counter value; handle common non-numeric responses
         if isinstance(value, Integer):
             values.append(int(value))
+            continue
+
+        text = value.prettyPrint()
+        if text is None or text == "":
+            raise SNMPError(f"invalid SNMP value for {oid}: <empty>")
+
+        # sometimes devices return a message like "No Such Instance..."
+        try:
+            num = int(text)
+        except ValueError:
+            raise SNMPError(f"invalid SNMP value for {oid}: {text!r}")
         else:
-            try:
-                values.append(int(value.prettyPrint()))
-            except ValueError as exc:
-                raise SNMPError(f"invalid SNMP value: {value}") from exc
+            values.append(num)
 
     if len(values) != 2:
         raise SNMPError("SNMP response does not include in/out counters")

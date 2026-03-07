@@ -3,7 +3,7 @@
 RTXルーターのSNMP（IF-MIB）を定期ポーリングし、RRDtoolで時系列保存・PNGグラフ生成を行う、
 ISP/IX風のクラシックNOC向けトラフィック監視システムです。
 
-- Python実装
+- Python実装 (requires Python 3.11 due to pysnmp compatibility)
 - Docker / docker-composeで完結
 - 複数ルーター・複数インターフェース対応
 - Basic認証付きWeb UI

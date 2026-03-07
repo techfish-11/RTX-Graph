@@ -1,8 +1,8 @@
-poll_interval: 300
+poll_interval: 5
 
 routers:
   - name: rtx-main
-    host: 192.0.2.1
+    host: 192.168.1.1
     community: public
     version: 2c
     port: 161

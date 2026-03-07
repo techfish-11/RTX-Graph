@@ -29,6 +29,7 @@ class Poller:
         ts = int(time.time())
         interface_id = self.db.get_interface_id(router.name, iface.if_index)
 
+        # attempt SNMP fetch, handling missing-object case specially
         try:
             in_octets, out_octets = await asyncio.to_thread(
                 fetch_interface_counters,
@@ -40,7 +41,35 @@ class Poller:
                 router.timeout,
                 router.retries,
             )
+        except SNMPError as exc:
+            msg = str(exc)
+            if "No Such" in msg:
+                self.logger.info(
+                    "SNMP missing for %s if%d: %s, assuming zero",
+                    router.name,
+                    iface.if_index,
+                    msg,
+                )
+                in_octets = 0
+                out_octets = 0
+            else:
+                # log and bail out early
+                self.db.log_poll(
+                    interface_id=interface_id,
+                    ts=ts,
+                    status="error",
+                    error=msg,
+                )
+                self.logger.warning(
+                    "poll failed %s if%d: %s",
+                    router.name,
+                    iface.if_index,
+                    msg,
+                )
+                return
 
+        # update RRD and graphs; capture errors separately
+        try:
             rrd_path = await asyncio.to_thread(
                 self.rrd_manager.ensure_rrd,
                 router.name,
@@ -74,7 +103,7 @@ class Poller:
                 in_octets,
                 out_octets,
             )
-        except (SNMPError, OSError, RuntimeError) as exc:
+        except (OSError, RuntimeError) as exc:
             self.db.log_poll(
                 interface_id=interface_id,
                 ts=ts,
