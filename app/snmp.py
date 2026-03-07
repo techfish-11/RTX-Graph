@@ -26,14 +26,20 @@ def fetch_interface_counters(
     port: int = 161,
     timeout: int = 2,
     retries: int = 1,
+    hc_counters: bool = False,
 ) -> Tuple[int, int]:
     if version not in {"2c", "v2c"}:
         raise SNMPError(f"Unsupported SNMP version: {version}")
 
-    # Use 32-bit counters (ifInOctets/ifOutOctets); widely supported.
-    # ifHCInOctets/ifHCOutOctets (64-bit) are not supported on many devices including Yamaha RTX.
-    in_oid = ObjectType(ObjectIdentity(f"1.3.6.1.2.1.2.2.1.10.{if_index}"))
-    out_oid = ObjectType(ObjectIdentity(f"1.3.6.1.2.1.2.2.1.16.{if_index}"))
+    if hc_counters:
+        # 64-bit counters (IF-MIB::ifHCInOctets / ifHCOutOctets) for Allied Telesis and other
+        # high-speed switches where 32-bit counters roll over quickly on GbE+ interfaces.
+        in_oid = ObjectType(ObjectIdentity(f"1.3.6.1.2.1.31.1.1.1.6.{if_index}"))
+        out_oid = ObjectType(ObjectIdentity(f"1.3.6.1.2.1.31.1.1.1.10.{if_index}"))
+    else:
+        # 32-bit counters (ifInOctets/ifOutOctets); widely supported including Yamaha RTX.
+        in_oid = ObjectType(ObjectIdentity(f"1.3.6.1.2.1.2.2.1.10.{if_index}"))
+        out_oid = ObjectType(ObjectIdentity(f"1.3.6.1.2.1.2.2.1.16.{if_index}"))
 
     iterator = getCmd(
         SnmpEngine(),

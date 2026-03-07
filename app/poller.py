@@ -40,6 +40,7 @@ class Poller:
                 router.port,
                 router.timeout,
                 router.retries,
+                router.hc_counters,
             )
         except SNMPError as exc:
             msg = str(exc)

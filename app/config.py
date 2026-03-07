@@ -21,6 +21,7 @@ class RouterConfig:
     port: int
     timeout: int
     retries: int
+    hc_counters: bool
     interfaces: list[InterfaceConfig]
 
 
@@ -62,6 +63,7 @@ def _load_router(item: dict) -> RouterConfig:
         port=int(item.get("port", 161)),
         timeout=int(item.get("timeout", 2)),
         retries=int(item.get("retries", 1)),
+        hc_counters=bool(item.get("hc_counters", False)),
         interfaces=interfaces,
     )
 
