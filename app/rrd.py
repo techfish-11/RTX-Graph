@@ -116,8 +116,6 @@ class RRDManager:
                     "VDEF:outMax=outBits,MAXIMUM",
                     "VDEF:inTotal=inOct,TOTAL",
                     "VDEF:outTotal=outOct,TOTAL",
-                    "CDEF:totalOct=inOct,outOct,+",
-                    "VDEF:grandTotal=totalOct,TOTAL",
                     "AREA:inBits#00B000:Incoming",
                     "LINE2:outBits#7F3FBF:Outgoing",
                     "COMMENT: \\n",
@@ -130,8 +128,6 @@ class RRDManager:
                     "GPRINT:outMin:%12.2lf%s",
                     "GPRINT:outMax:%12.2lf%s",
                     "GPRINT:outTotal:%12.2lf%sB\\l",
-                    "COMMENT: \\n",
-                    "GPRINT:grandTotal:Total (In+Out)\\: %8.2lf%sB\\l",
                 ]
             )
 
