@@ -10,6 +10,6 @@ routers:
     retries: 1
     interfaces:
       - if_index: 1
-        name: ge0
+        name: LAN1
       - if_index: 2
-        name: ge1
+        name: LAN2
