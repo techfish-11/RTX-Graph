@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% set title = 'Interface List' %}
+
+{% block breadcrumb %}
+  <a href="{{ url_for('index') }}">Home</a> &gt; {{ router.name }}
+{% endblock %}
+
+{% block content %}
+<div class="router-meta">
+  <strong>Router:</strong> {{ router.name }} &nbsp;&nbsp;
+  <strong>Host:</strong> {{ router.host }}
+</div>
+
+<table class="noc-table">
+  <thead>
+    <tr>
+      <th>IfIndex</th>
+      <th>Name</th>
+      <th>Graphs</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for iface in interfaces %}
+    <tr>
+      <td>{{ iface.if_index }}</td>
+      <td>{{ iface.name }}</td>
+      <td>
+        <a href="{{ url_for('interface_view', router_id=router.id, interface_id=iface.id) }}">open</a>
+      </td>
+    </tr>
+  {% else %}
+    <tr>
+      <td colspan="3">No interfaces configured.</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% set title = 'Traffic Graphs' %}
+
+{% block breadcrumb %}
+  <a href="{{ url_for('index') }}">Home</a> &gt;
+  <a href="{{ url_for('router_view', router_id=router.id) }}">{{ router.name }}</a> &gt;
+  {{ interface.name }} (if{{ interface.if_index }})
+{% endblock %}
+
+{% block content %}
+<div class="router-meta">
+  <strong>Router:</strong> {{ router.name }} &nbsp;&nbsp;
+  <strong>Interface:</strong> {{ interface.name }} (if{{ interface.if_index }})
+</div>
+
+<div class="graph-block">
+  <div class="graph-title">1 Day</div>
+  <img src="{{ url_for('graph_image', filename=graphs['1day']) }}?v={{ refresh_nonce }}" alt="1day graph">
+</div>
+
+<div class="graph-block">
+  <div class="graph-title">1 Week</div>
+  <img src="{{ url_for('graph_image', filename=graphs['1week']) }}?v={{ refresh_nonce }}" alt="1week graph">
+</div>
+
+<div class="graph-block">
+  <div class="graph-title">1 Month</div>
+  <img src="{{ url_for('graph_image', filename=graphs['1month']) }}?v={{ refresh_nonce }}" alt="1month graph">
+</div>
+{% endblock %}

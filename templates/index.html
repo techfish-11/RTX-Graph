@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% set title = 'Router List' %}
+
+{% block breadcrumb %}
+  Home
+{% endblock %}
+
+{% block content %}
+<table class="noc-table">
+  <thead>
+    <tr>
+      <th>Router</th>
+      <th>Host</th>
+      <th>Interfaces</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for router in routers %}
+    <tr>
+      <td><a href="{{ url_for('router_view', router_id=router.id) }}">{{ router.name }}</a></td>
+      <td>{{ router.host }}</td>
+      <td><a href="{{ url_for('router_view', router_id=router.id) }}">view</a></td>
+    </tr>
+  {% else %}
+    <tr>
+      <td colspan="3">No router configured.</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

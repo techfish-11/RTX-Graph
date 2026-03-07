@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }} - RTX Graph</title>
+  <meta http-equiv="refresh" content="{{ refresh_seconds }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="header-wrap">
+    <div class="header-title">RTX TRAFFIC MONITOR</div>
+    <div class="header-sub">IF-MIB / RRDtool / Internal NOC View</div>
+  </div>
+
+  <div class="main-wrap">
+    <div class="breadcrumb">
+      {% block breadcrumb %}{% endblock %}
+    </div>
+
+    <div class="content-box">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+  <div class="footer-wrap">
+    <span>Auto refresh: {{ refresh_seconds }} sec</span>
+  </div>
+</body>
+</html>

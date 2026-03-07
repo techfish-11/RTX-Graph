@@ -1,0 +1,14 @@
+services:
+  rtx-graph:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rtx-graph
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./data:/app/data

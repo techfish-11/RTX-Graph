@@ -1,0 +1,15 @@
+poll_interval: 300
+
+routers:
+  - name: rtx-main
+    host: 192.0.2.1
+    community: public
+    version: 2c
+    port: 161
+    timeout: 2
+    retries: 1
+    interfaces:
+      - if_index: 1
+        name: ge0
+      - if_index: 2
+        name: ge1
