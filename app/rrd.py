@@ -93,7 +93,7 @@ class RRDManager:
                     "--lower-limit",
                     "0",
                     "--title",
-                    f"{router_name} :: {iface_name} ({label})",
+                    f"HomeDC Traffic ({iface_name}) ({label})",
                     "--vertical-label",
                     "bits per second",
                     "--color",
