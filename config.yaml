@@ -1,4 +1,4 @@
-poll_interval: 5
+poll_interval: 150  # ポーリング間隔（秒）
 
 routers:
   - name: rtx-main
