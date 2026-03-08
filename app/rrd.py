@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import subprocess
 from pathlib import Path
 
@@ -23,7 +24,8 @@ class RRDManager:
 
     def _run_rrdtool(self, args: list[str]) -> None:
         cmd = ["rrdtool", *args]
-        proc = subprocess.run(cmd, check=False, capture_output=True, text=True)
+        env = {**os.environ, "TZ": "Asia/Tokyo"}
+        proc = subprocess.run(cmd, check=False, capture_output=True, text=True, env=env)
         if proc.returncode != 0:
             raise RRDToolError(proc.stderr.strip() or proc.stdout.strip() or "rrdtool command failed")
 
