@@ -8,8 +8,9 @@ from typing import Callable
 
 from flask import Flask, Response, abort, render_template, request, send_from_directory
 
+from .config import PublicGraphConfig
 from .models import Database
-from .utils import graph_relative_paths
+from .utils import graph_relative_paths, slugify
 
 
 def create_app(
@@ -18,9 +19,16 @@ def create_app(
     username: str,
     password: str,
     refresh_seconds: int = 300,
+    public_graphs: list[PublicGraphConfig] | None = None,
 ) -> Flask:
     app = Flask(__name__, template_folder="../templates", static_folder="../static")
     graph_root_path = Path(graph_root)
+
+    # 認証なしで配信するグラフのプレフィックスセット (例: "rtx-main/if2/")
+    public_prefixes: set[str] = set()
+    for pg in (public_graphs or []):
+        prefix = f"{slugify(pg.router)}/if{pg.if_index}/"
+        public_prefixes.add(prefix)
 
     def _unauthorized() -> Response:
         return Response(
@@ -84,8 +92,17 @@ def create_app(
         )
 
     @app.route("/graphs/<path:filename>")
-    @requires_basic_auth
     def graph_image(filename: str):
+        is_public = any(filename.startswith(prefix) for prefix in public_prefixes)
+        if not is_public:
+            auth = request.authorization
+            if not auth:
+                return _unauthorized()
+            user_ok = secrets.compare_digest(auth.username or "", username)
+            pass_ok = secrets.compare_digest(auth.password or "", password)
+            if not (user_ok and pass_ok):
+                return _unauthorized()
+
         file_path = graph_root_path / filename
         if not file_path.exists() or not file_path.is_file():
             abort(404)

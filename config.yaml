@@ -13,3 +13,7 @@ routers:
         name: LAN1
       - if_index: 2
         name: LAN2
+
+public_graphs:
+   - router: rtx-main
+     if_index: 2

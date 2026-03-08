@@ -26,9 +26,16 @@ class RouterConfig:
 
 
 @dataclass(slots=True)
+class PublicGraphConfig:
+    router: str
+    if_index: int
+
+
+@dataclass(slots=True)
 class AppConfig:
     poll_interval: int
     routers: list[RouterConfig]
+    public_graphs: list[PublicGraphConfig]
 
 
 class ConfigError(ValueError):
@@ -83,4 +90,10 @@ def load_config(path: str | Path) -> AppConfig:
         raise ConfigError("routers が1件以上必要です")
 
     routers = [_load_router(router) for router in routers_raw]
-    return AppConfig(poll_interval=poll_interval, routers=routers)
+
+    public_graphs = [
+        PublicGraphConfig(router=str(pg["router"]), if_index=int(pg["if_index"]))
+        for pg in (raw.get("public_graphs") or [])
+    ]
+
+    return AppConfig(poll_interval=poll_interval, routers=routers, public_graphs=public_graphs)

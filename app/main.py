@@ -54,6 +54,7 @@ def main() -> None:
         username=web_user,
         password=web_password,
         refresh_seconds=refresh_seconds,
+        public_graphs=config.public_graphs,
     )
 
     logger.info("web server starting on 0.0.0.0:%s", web_port)
