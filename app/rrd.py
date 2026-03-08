@@ -83,6 +83,8 @@ class RRDManager:
                     start,
                     "--end",
                     "now",
+                    "--timezone",
+                    "Asia/Tokyo",
                     "--imgformat",
                     "PNG",
                     "--width",
