@@ -13,18 +13,48 @@
   <strong>Interface:</strong> {{ interface.name }} (if{{ interface.if_index }})
 </div>
 
+<div class="p95-toggle-bar">
+  <label class="p95-toggle-label">
+    <span>95th Percentile</span>
+    <span class="p95-switch">
+      <input type="checkbox" id="p95Toggle">
+      <span class="p95-slider"></span>
+    </span>
+  </label>
+</div>
+
 <div class="graph-block">
   <div class="graph-title">1 Day</div>
-  <img src="{{ url_for('graph_image', filename=graphs['1day']) }}?v={{ refresh_nonce }}" alt="1day graph">
+  <img id="img-1day" src="{{ url_for('graph_image', filename=graphs['1day']) }}?v={{ refresh_nonce }}" alt="1day graph">
 </div>
 
 <div class="graph-block">
   <div class="graph-title">1 Week</div>
-  <img src="{{ url_for('graph_image', filename=graphs['1week']) }}?v={{ refresh_nonce }}" alt="1week graph">
+  <img id="img-1week" src="{{ url_for('graph_image', filename=graphs['1week']) }}?v={{ refresh_nonce }}" alt="1week graph">
 </div>
 
 <div class="graph-block">
   <div class="graph-title">1 Month</div>
-  <img src="{{ url_for('graph_image', filename=graphs['1month']) }}?v={{ refresh_nonce }}" alt="1month graph">
+  <img id="img-1month" src="{{ url_for('graph_image', filename=graphs['1month']) }}?v={{ refresh_nonce }}" alt="1month graph">
 </div>
+
+<script>
+  var normalSrcs = {
+    '1day':   "{{ url_for('graph_image', filename=graphs['1day']) }}?v={{ refresh_nonce }}",
+    '1week':  "{{ url_for('graph_image', filename=graphs['1week']) }}?v={{ refresh_nonce }}",
+    '1month': "{{ url_for('graph_image', filename=graphs['1month']) }}?v={{ refresh_nonce }}"
+  };
+  var p95Srcs = {
+    '1day':   "{{ url_for('graph_image', filename=graphs['1day_p95']) }}?v={{ refresh_nonce }}",
+    '1week':  "{{ url_for('graph_image', filename=graphs['1week_p95']) }}?v={{ refresh_nonce }}",
+    '1month': "{{ url_for('graph_image', filename=graphs['1month_p95']) }}?v={{ refresh_nonce }}"
+  };
+
+  document.getElementById('p95Toggle').addEventListener('change', function() {
+    var p95 = this.checked;
+    ['1day', '1week', '1month'].forEach(function(period) {
+      document.getElementById('img-' + period).src = p95 ? p95Srcs[period] : normalSrcs[period];
+    });
+  });
+</script>
 {% endblock %}

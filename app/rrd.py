@@ -64,6 +64,35 @@ class RRDManager:
             f"{ts}:{in_octets}:{out_octets}",
         ])
 
+    def _common_graph_args(
+        self,
+        output: Path,
+        rrd_path: Path,
+        start: str,
+        title: str,
+    ) -> list[str]:
+        return [
+            "graph",
+            str(output),
+            "--start", start,
+            "--end", "now",
+            "--imgformat", "PNG",
+            "--width", "760",
+            "--height", "220",
+            "--slope-mode",
+            "--lower-limit", "0",
+            "--title", title,
+            "--vertical-label", "bits per second",
+            "--color", "BACK#E6E6E6",
+            "--color", "CANVAS#F2F2F2",
+            "--color", "GRID#BBBBBB",
+            "--color", "MGRID#888888",
+            f"DEF:inOct={rrd_path}:in:AVERAGE",
+            f"DEF:outOct={rrd_path}:out:AVERAGE",
+            "CDEF:inBits=inOct,8,*",
+            "CDEF:outBits=outOct,8,*",
+        ]
+
     def render_graphs(self, router_name: str, if_index: int, iface_name: str) -> dict[str, Path]:
         periods = {
             "1day": "-1d",
@@ -78,38 +107,8 @@ class RRDManager:
             output = graph_paths[label]
             output.parent.mkdir(parents=True, exist_ok=True)
             self._run_rrdtool(
-                [
-                    "graph",
-                    str(output),
-                    "--start",
-                    start,
-                    "--end",
-                    "now",
-                    "--imgformat",
-                    "PNG",
-                    "--width",
-                    "760",
-                    "--height",
-                    "220",
-                    "--slope-mode",
-                    "--lower-limit",
-                    "0",
-                    "--title",
-                    f"HomeDC Traffic ({iface_name}) ({label})",
-                    "--vertical-label",
-                    "bits per second",
-                    "--color",
-                    "BACK#E6E6E6",
-                    "--color",
-                    "CANVAS#F2F2F2",
-                    "--color",
-                    "GRID#BBBBBB",
-                    "--color",
-                    "MGRID#888888",
-                    f"DEF:inOct={rrd_path}:in:AVERAGE",
-                    f"DEF:outOct={rrd_path}:out:AVERAGE",
-                    "CDEF:inBits=inOct,8,*",
-                    "CDEF:outBits=outOct,8,*",
+                self._common_graph_args(output, rrd_path, start, f"HomeDC Traffic ({iface_name}) ({label})")
+                + [
                     "VDEF:inAvg=inBits,AVERAGE",
                     "VDEF:inMin=inBits,MINIMUM",
                     "VDEF:inMax=inBits,MAXIMUM",
@@ -129,6 +128,36 @@ class RRDManager:
                     "GPRINT:outAvg: Out %8.2lf%s",
                     "GPRINT:outMin:%12.2lf%s",
                     "GPRINT:outMax:%12.2lf%s",
+                    "GPRINT:outTotal:%12.2lf%sB\\l",
+                ]
+            )
+
+            # 95th percentile graph
+            output_p95 = graph_paths[f"{label}_p95"]
+            self._run_rrdtool(
+                self._common_graph_args(output_p95, rrd_path, start, f"HomeDC Traffic 95th% ({iface_name}) ({label})")
+                + [
+                    "VDEF:inAvg=inBits,AVERAGE",
+                    "VDEF:inMax=inBits,MAXIMUM",
+                    "VDEF:outAvg=outBits,AVERAGE",
+                    "VDEF:outMax=outBits,MAXIMUM",
+                    "VDEF:inTotal=inOct,TOTAL",
+                    "VDEF:outTotal=outOct,TOTAL",
+                    "VDEF:in95=inBits,95,PERCENTNAN",
+                    "VDEF:out95=outBits,95,PERCENTNAN",
+                    "AREA:inBits#00B000:Incoming",
+                    "LINE2:outBits#7F3FBF:Outgoing",
+                    "LINE2:in95#FF6600:In 95th%",
+                    "LINE2:out95#FF00AA:Out 95th%",
+                    "COMMENT: \\n",
+                    "COMMENT:            Avg         Max         95th%       Total\\l",
+                    "GPRINT:inAvg: In  %8.2lf%s",
+                    "GPRINT:inMax:%12.2lf%s",
+                    "GPRINT:in95:%12.2lf%s",
+                    "GPRINT:inTotal:%12.2lf%sB\\l",
+                    "GPRINT:outAvg: Out %8.2lf%s",
+                    "GPRINT:outMax:%12.2lf%s",
+                    "GPRINT:out95:%12.2lf%s",
                     "GPRINT:outTotal:%12.2lf%sB\\l",
                 ]
             )

@@ -17,6 +17,9 @@ def graph_relative_paths(router_name: str, if_index: int) -> dict[str, str]:
         "1day": f"{router_slug}/{interface_dir}/traffic_1day.png",
         "1week": f"{router_slug}/{interface_dir}/traffic_1week.png",
         "1month": f"{router_slug}/{interface_dir}/traffic_1month.png",
+        "1day_p95": f"{router_slug}/{interface_dir}/traffic_1day_p95.png",
+        "1week_p95": f"{router_slug}/{interface_dir}/traffic_1week_p95.png",
+        "1month_p95": f"{router_slug}/{interface_dir}/traffic_1month_p95.png",
     }
 
 
